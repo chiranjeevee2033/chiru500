@@ -6,6 +6,7 @@ import os
 import json
 from datetime import datetime
 from zoneinfo import ZoneInfo
+
 GROQ_API_KEY = os.environ["GROQ_API_KEY"]
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 # ==========================================================
@@ -222,19 +223,25 @@ Format:
 Sort from highest probability to lowest.
 """
 
-    response = gemini_client.models.generate_content(
-        model="gemini-2.5-flash",   # Free model
-        contents=prompt
-    )
-
-    text = response.text.strip()
-
-    if text.startswith("```"):
-        text = text.replace("```json", "").replace("```", "").strip()
-
-    data = json.loads(text)
-
-    return data["stocks"]
+    for attempt in range(5):
+            try:
+                response = gemini_client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=prompt
+                )
+                break
+    
+            except ServerError as e:
+                print(f"Gemini busy. Retry {attempt+1}/5")
+                time.sleep(10)
+    
+        else:
+            raise Exception("Gemini unavailable after 5 retries")
+    
+        text = response.text.strip()
+    
+        if text.startswith("```"):
+            text = text.replace("```json", "").replace("```", "").strip()
 
 
 # ==========================================================

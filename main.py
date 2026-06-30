@@ -2,7 +2,6 @@ import gspread
 from google.oauth2.service_account import Credentials
 from collections import Counter
 import random
-from dotenv import load_dotenv
 import os
 import json
 

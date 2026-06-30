@@ -184,6 +184,8 @@ import json
 
 
 gemini_client = genai.Client(api_key=GEMINI_API_KEY)
+import time
+from google.genai.errors import ServerError
 
 def gemini_probability(stocks):
 
@@ -223,27 +225,35 @@ Format:
 Sort from highest probability to lowest.
 """
 
+    response = None
+
     for attempt in range(5):
-            try:
-                response = gemini_client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=prompt
-                )
-                break
-    
-            except ServerError as e:
-                print(f"Gemini busy. Retry {attempt+1}/5")
-                time.sleep(10)
-    
-        else:
-            raise Exception("Gemini unavailable after 5 retries")
-    
-        text = response.text.strip()
-    
-        if text.startswith("```"):
-            text = text.replace("```json", "").replace("```", "").strip()
+        try:
+            response = gemini_client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt
+            )
+            break
 
+        except ServerError:
+            print(f"Gemini busy... Retry {attempt + 1}/5")
+            time.sleep(10)
 
+    if response is None:
+        raise Exception("Gemini unavailable after 5 retries")
+
+    text = response.text.strip()
+
+    if text.startswith("```"):
+        text = text.replace("```json", "").replace("```", "").strip()
+
+    print("========== GEMINI ==========")
+    print(text)
+    print("============================")
+
+    data = json.loads(text)
+
+    return data["stocks"]
 # ==========================================================
 # WRITE RESULT
 # ==========================================================

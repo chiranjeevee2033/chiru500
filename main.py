@@ -4,7 +4,8 @@ from collections import Counter
 import random
 import os
 import json
-
+from datetime import datetime
+from zoneinfo import ZoneInfo
 GROQ_API_KEY = os.environ["GROQ_API_KEY"]
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 # ==========================================================
@@ -248,15 +249,23 @@ def write_result(start_cell, result):
 
     for r in result:
 
+        # Skip probabilities below 75%
+        if r["probability"] < 0.75:
+            continue
+
         rows.append([
             f"{rank}. {r['symbol']} {r['probability']*100:.2f}% (Conf {r['confidence']*100:.1f}%)"
         ])
 
         rank += 1
 
+    # Append IST timestamp
+    ist_time = datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%d-%m-%Y %I:%M:%S %p IST")
+
+    rows.append([""])
+    rows.append([f"Last Updated: {ist_time}"])
+
     sheet.update(values=rows, range_name=start_cell)
-
-
 # ==========================================================
 # PIPELINE
 # ==========================================================

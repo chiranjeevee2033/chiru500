@@ -16,7 +16,6 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 SPREADSHEET_ID = "152D6n5c8dVDr7cdWBYESI7VrEaNr5CCT-eCTeuT6qvE"
 SHEET_NAME = "VUP"
 
-CREDENTIAL_FILE = "booupdn-732325086218.json"
 
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets"
@@ -26,8 +25,14 @@ SCOPES = [
 # GOOGLE SHEETS
 # ==========================================================
 
-creds = Credentials.from_service_account_file(
-    CREDENTIAL_FILE,
+import os
+import json
+from google.oauth2.service_account import Credentials
+
+google_credentials = json.loads(os.environ["GOOGLE_CREDENTIALS"])
+
+creds = Credentials.from_service_account_info(
+    google_credentials,
     scopes=SCOPES
 )
 

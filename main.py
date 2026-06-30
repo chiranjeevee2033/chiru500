@@ -4,11 +4,10 @@ from collections import Counter
 import random
 from dotenv import load_dotenv
 import os
+import json
 
-load_dotenv()
-
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GROQ_API_KEY = os.environ["GROQ_API_KEY"]
+GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 # ==========================================================
 # CONFIG
 # ==========================================================
